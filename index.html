@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Célula Uno - Programa Maestro</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        :root { --azul: #1a5276; --naranja: #e67e22; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; background-color: #f8f9fa; margin: 0; padding: 15px; display: flex; flex-direction: column; align-items: center; }
+        
+        /* Panel de control superior */
+        .selector-superior { margin-bottom: 15px; text-align: center; width: 100%; max-width: 500px; background: white; padding: 15px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        select { padding: 10px; width: 100%; max-width: 300px; font-size: 16px; border-radius: 6px; border: 1px solid #ced4da; cursor: pointer; }
+
+        /* Contenedor del programa - Se ajusta al contenido */
+        #hoja-programa { 
+            width: 100%;
+            max-width: 650px; /* Tamaño ideal para lectura en celular */
+            padding: 20px; 
+            background: white; 
+            box-sizing: border-box;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            display: inline-block; /* Evita espacios extra abajo */
+        }
+
+        .header { text-align: center; border-bottom: 3px double var(--azul); margin-bottom: 15px; padding-bottom: 10px; }
+        h1 { margin: 0; color: var(--azul); font-size: 24px; text-transform: uppercase; letter-spacing: 1px; }
+        .liderazgo { font-size: 14px; color: #34495e; margin: 5px 0; line-height: 1.4; }
+        .biblia { font-style: italic; color: #7f8c8d; font-size: 12px; margin-top: 5px; display: block; }
+        
+        .fase-banner { background: var(--azul); color: white; text-align: center; padding: 8px; font-weight: bold; border-radius: 5px; margin-bottom: 15px; text-transform: uppercase; font-size: 15px; }
+        
+        .verbo-box { text-align: center; background: #fef9e7; border: 2px solid #f1c40f; padding: 10px; border-radius: 8px; margin-bottom: 20px; }
+        .verbo-label { font-size: 11px; color: #9c640c; font-weight: bold; text-transform: uppercase; }
+        .verbo-nombre { font-size: 22px; font-weight: bold; color: #9c640c; text-transform: uppercase; letter-spacing: 2px; }
+
+        .section-title { background: #f2f4f4; padding: 6px 12px; border-left: 5px solid var(--azul); font-weight: bold; margin-bottom: 12px; font-size: 13px; color: var(--azul); text-transform: uppercase; }
+        
+        .info-grid { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
+        .card { padding: 8px; border: 1px dashed #ccc; border-radius: 5px; background: #fff; }
+        .date-label { font-size: 12px; color: var(--naranja); font-weight: bold; text-transform: uppercase; margin-bottom: 2px; display: block; }
+        .tipo-reunion { font-size: 13px; font-weight: bold; color: #566573; }
+        .nombre-refri { color: #1f618d; font-weight: bold; font-size: 14px; }
+
+        .item { display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px solid #eee; font-size: 12.5px; }
+        .role { font-weight: bold; color: #2c3e50; padding-right: 10px; }
+        .asignado { text-align: right; }
+
+        .btn-container { margin: 20px 0; width: 100%; max-width: 500px; text-align: center; }
+        button { background: #27ae60; color: white; padding: 12px 40px; border: none; border-radius: 6px; cursor: pointer; font-size: 16px; font-weight: bold; transition: 0.3s; width: 100%; max-width: 300px; }
+        button:hover { background: #219150; transform: scale(1.02); }
+    </style>
+</head>
+<body>
+
+<div class="selector-superior">
+    <label style="display:block; margin-bottom:8px; font-weight:bold; color:#2c3e50;">SELECCIONAR SEMANA:</label>
+    <select id="selectorSemana" onchange="cambiarSemana()"></select>
+</div>
+
+<div id="hoja-programa">
+    <div class="header">
+        <h1>CÉLULA UNO</h1>
+        <div class="liderazgo">
+            <strong>Pastor:</strong> Aristarco Ovilla Jiménez <br>
+            <strong>Líder:</strong> Hno. Víctor Caamal Moo
+        </div>
+        <span class="biblia">"¡Mirad qué bueno y qué delicioso es habitar los hermanos juntos en armonía!" <br><strong>Salmos 133:1</strong></span>
+    </div>
+
+    <div id="faseBanner" class="fase-banner">ETAPA: ATRAER</div>
+
+    <div class="verbo-box">
+        <div class="verbo-label" id="labelVerbo">VERBO DE LA SEMANA 1:</div>
+        <div id="verboSemana" class="verbo-nombre">ORAR</div>
+    </div>
+
+    <div class="section-title">CALENDARIO DE REFRIGERIOS</div>
+    <div class="info-grid">
+        <div class="card">
+            <span class="date-label" id="fechaMartes">Martes 6 de enero</span>
+            <span class="tipo-reunion">Planeación:</span> <span id="nombreMartes" class="nombre-refri"></span>
+        </div>
+        <div class="card">
+            <span class="date-label" id="fechaJueves">Jueves 8 de enero</span>
+            <span class="tipo-reunion">Alcance:</span> <span id="nombreJueves" class="nombre-refri"></span>
+        </div>
+    </div>
+
+    <div class="section-title">PRIVILEGIOS (JUEVES DE ALCANCE)</div>
+    <div id="listaPrivilegios">
+        <div class="item"><span class="role">1. Bienvenida:</span> <span class="asignado">Hna. Lorena / Hno. Genaro</span></div>
+        <div class="item"><span class="role">2. Invitados:</span> <span class="asignado">Hno. Santos</span></div>
+        <div class="item"><span class="role">3. Oración inicial:</span> <span class="asignado">Hno. Raúl</span></div>
+        <div class="item"><span class="role">4. Alabanzas:</span> <span class="asignado">Hnos. Natanael / Rafael</span></div>
+        <div class="item"><span class="role">5. Palabra:</span> <span class="asignado">Hno. Víctor</span></div>
+        <div class="item"><span class="role">6. Oración:</span> <span class="asignado">Hno. Víctor</span></div>
+        <div class="item"><span class="role">7. Ofrendas:</span> <span class="asignado">Hna. Mariel</span></div>
+        <div class="item"><span class="role">8. Avisos:</span> <span class="asignado">Hno. Santos</span></div>
+        <div class="item"><span class="role">9. Oración final:</span> <span class="asignado">Hno. Jorge</span></div>
+        <div class="item"><span class="role">Maestro niños:</span> <span class="asignado">Hnos. Fredy y Rosenda</span></div>
+    </div>
+</div>
+
+<div class="btn-container">
+    <button onclick="generarImagen()">DESCARGAR IMAGEN</button>
+</div>
+
+<script>
+    const datosSemanas = [
+        { verbo: "ORAR", fase: "ATRAER", m: "", j: "Víctor Caamal / Jorge Pool", fm: "6 ene", fj: "8 ene" },
+        { verbo: "ANOTAR", fase: "ATRAER", m: "Jorge Rafael / Natanael Dzul", j: "Lorena Miguel / Genaro Guerra", fm: "13 ene", fj: "15 ene" },
+        { verbo: "CONTACTAR", fase: "ATRAER", m: "Erick Collí / Fredi Hernández", j: "José Ángel / Verónica Espadas", fm: "20 ene", fj: "22 ene" },
+        { verbo: "CONFIRMAR", fase: "ATRAER", m: "Víctor Caamal / Jorge Pool", j: "Santos Moo / Felipe Tun", fm: "27 ene", fj: "29 ene" },
+        { verbo: "DESATAR", fase: "ATRAER", m: "Jorge Rafael / Natanael Dzul", j: "Lorena Miguel / Genaro Guerra", fm: "3 feb", fj: "5 feb" },
+        { verbo: "LLEVAR", fase: "ATRAER", m: "Erick Collí / Fredi Hernández", j: "José Ángel / Verónica Espadas", fm: "10 feb", fj: "12 feb" },
+        { verbo: "MOTIVAR", fase: "RESTAURAR", m: "Víctor Caamal / Jorge Pool", j: "Santos Moo / Felipe Tun", fm: "17 feb", fj: "19 feb" },
+        { verbo: "INTEGRAR", fase: "RESTAURAR", m: "Jorge Rafael / Natanael Dzul", j: "Lorena Miguel / Genaro Guerra", fm: "24 feb", fj: "26 feb" },
+        { verbo: "CONSOLIDAR", fase: "RESTAURAR", m: "Erick Collí / Fredi Hernández", j: "José Ángel / Verónica Espadas", fm: "3 mar", fj: "5 mar" },
+        { verbo: "PREPARAR", fase: "RESTAURAR", m: "Víctor Caamal / Jorge Pool", j: "Santos Moo / Felipe Tun", fm: "10 mar", fj: "12 mar" },
+        { verbo: "SANTIFICAR", fase: "RESTAURAR", m: "Jorge Rafael / Natanael Dzul", j: "Lorena Miguel / Genaro Guerra", fm: "17 mar", fj: "19 mar" },
+        { verbo: "MATRICULAR", fase: "BAUTIZAR", m: "Erick Collí / Fredi Hernández", j: "José Ángel / Verónica Espadas", fm: "24 mar", fj: "26 mar" },
+        { verbo: "CONSERVAR", fase: "BAUTIZAR", m: "Víctor Caamal / Jorge Pool", j: "Santos Moo / Felipe Tun", fm: "31 mar", fj: "2 abr" },
+        { verbo: "DOCTRINAR", fase: "BAUTIZAR", m: "Jorge Rafael / Natanael Dzul", j: "Lorena Miguel / Genaro Guerra", fm: "7 abr", fj: "9 abr" },
+        { verbo: "DISCIPULAR", fase: "BAUTIZAR", m: "Erick Collí / Fredi Hernández", j: "José Ángel / Verónica Espadas", fm: "14 abr", fj: "16 abr" },
+        { verbo: "BAUTIZAR", fase: "BAUTIZAR", m: "Víctor Caamal / Jorge Pool", j: "Santos Moo / Felipe Tun", fm: "21 abr", fj: "23 abr" }
+    ];
+
+    const selector = document.getElementById('selectorSemana');
+    datosSemanas.forEach((s, i) => {
+        let opt = document.createElement('option');
+        opt.value = i;
+        opt.text = `SEMANA ${i+1} - ${s.verbo}`;
+        selector.add(opt);
+    });
+
+    function cambiarSemana() {
+        const i = parseInt(selector.value);
+        const s = datosSemanas[i];
+        document.getElementById('faseBanner').innerText = `ETAPA: ${s.fase}`;
+        document.getElementById('labelVerbo').innerText = `VERBO DE LA SEMANA ${i+1}:`;
+        document.getElementById('verboSemana').innerText = s.verbo;
+        document.getElementById('nombreMartes').innerText = s.m;
+        document.getElementById('nombreJueves').innerText = s.j;
+        document.getElementById('fechaMartes').innerText = `Martes ${s.fm}`;
+        document.getElementById('fechaJueves').innerText = `Jueves ${s.fj}`;
+    }
+
+    function generarImagen() {
+        const element = document.getElementById('hoja-programa');
+        const numSem = parseInt(selector.value) + 1;
+        
+        html2canvas(element, { 
+            scale: 2, 
+            backgroundColor: "#ffffff",
+            logging: false
+        }).then(canvas => {
+            const link = document.createElement('a');
+            link.download = `Semana_${numSem}_Programa.png`;
+            link.href = canvas.toDataURL("image/png");
+            link.click();
+        });
+    }
+
+    cambiarSemana();
+</script>
+</body>
+</html>
